@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ポーカーチップボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #0b5137;
+      color: #f2f2f2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      gap: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    #controls {
+      width: 960px;
+      max-width: 95vw;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #player-count-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #player-count-controls .count-label {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    #player-count-controls .count-value {
+      font-size: 1.25rem;
+      margin-left: 6px;
+    }
+
+    .count-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .count-buttons button {
+      background: #1e90ff;
+      color: #f2f8ff;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #setup-btn {
+      background: #34c759;
+      color: #0b2e1f;
+    }
+
+    #setup-btn:not(:disabled):active {
+      transform: translateY(1px);
+    }
+
+    #reset-btn {
+      background: #ffa502;
+      color: #2e1600;
+    }
+
+    #remove-player-btn {
+      background: #ff6b6b;
+      color: #2e0f0f;
+    }
+
+    #stack-config {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .input-field input[type="number"] {
+      width: 120px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+    }
+
+    #stack-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+    }
+
+    .stack-note {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .stack-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #stack-breakdown .stack-row:last-child {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+
+    .stack-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .stack-count {
+      margin-left: auto;
+      opacity: 0.85;
+    }
+
+    #player-config {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .player-card {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .player-card .player-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .player-card .player-stack {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    #board {
+      position: relative;
+      width: 960px;
+      max-width: 95vw;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    #scene {
+      width: 100%;
+      height: 100%;
+    }
+
+    #overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      font-weight: 600;
+    }
+
+    .area-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 120px;
+      pointer-events: none;
+    }
+
+    .area-label strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .area-label span {
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <h1>ポーカーチップ物理ボード</h1>
+
+  <section id="controls">
+    <div id="player-count-controls">
+      <div class="count-label">
+        プレイヤー人数:
+        <span class="count-value" id="player-count-display">4</span>
+      </div>
+      <div class="count-buttons">
+        <button id="add-player-btn" type="button">プレイヤー追加</button>
+        <button id="remove-player-btn" type="button">プレイヤー削除</button>
+      </div>
+    </div>
+    <div id="stack-config">
+      <label class="input-field">
+        1人あたりのチップ総点数
+        <input id="stack-total" type="number" min="100" step="100" value="100">
+      </label>
+      <div class="stack-note" id="stack-note">全プレイヤー同一構成 / バンクは細かいチップで200点分を常備</div>
+      <div id="stack-breakdown"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="player-config"></div>
+    <div style="display: flex; gap: 12px;">
+      <button id="setup-btn" type="button">セットアップ</button>
+      <button id="reset-btn" type="button" disabled>リセット</button>
+    </div>
+  </section>
+
+  <div id="board">
+    <div id="scene"></div>
+    <div id="overlay"></div>
+  </div>
+  <script src="app.js" defer></script>
+</body>
+</html>
