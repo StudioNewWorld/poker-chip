@@ -27,7 +27,8 @@
   const AREA_WIDTH = 260;
   const AREA_HEIGHT = 200;
   const POT_SIZE = 300;
-  const CHIP_RADIUS = 16;
+  const isSmallScreen = window.matchMedia('(max-width: 640px)').matches;
+  const CHIP_RADIUS = isSmallScreen ? 26 : 16;
   const CHIP_STACK_SPACING = CHIP_RADIUS * 1.8;
   const PLAYER_RING_CENTER_Y = 540;
   const PLAYER_RING_RADIUS = 360;
