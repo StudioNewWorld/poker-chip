@@ -1,3 +1,5 @@
+https://studionewworld.github.io/poker-chip/
+
 # Poker Chip Physics Board
 
 An interactive poker chip distribution board that uses Matter.js physics to simulate chips tumbling into player areas, the pot, and the bank. Configure per-player chip stacks, tweak the number of players at the table, and run quick resets to visualize stack allocations for home games or tournaments.
@@ -35,4 +37,3 @@ This project is entirely client-side. You only need a browser that supports mode
 ## Technology
 - Vanilla HTML/CSS/JavaScript
 - [Matter.js](https://brm.io/matter-js/) for rigid-body physics and interactions
-
